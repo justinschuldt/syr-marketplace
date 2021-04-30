@@ -52,14 +52,14 @@
         </div>
 
         <div class="row justify-between q-px-lg q-my-md">
-          <AppSwitchableEditor
+           <AppSwitchableEditor
             v-if="isPlaceSearchEnabled"
             tag="div"
             class="col-6 text-body1"
             :value="activeAsset.locationName"
             :active="isCurrentUserTheOwner"
             :custom-save="updateAssetFn('locations')"
-          >
+           >
             <template>
               <!-- v-slot:default="{ content }" -->
               <div class="text-h6 ellipsis">
@@ -72,15 +72,21 @@
                 field="address_placeholder"
               />
             </template>
-            <template v-slot:edition="{ content, saveDraft }">
-              <PlacesAutocomplete
+            <template v-slot:edition>
+            <!--<template>-->
+              <!--<PlacesAutocomplete
                 :initial-query="activeAsset.locationName"
                 :label="$t({ id: 'places.address_placeholder' })"
                 @selectPlace="loc => prepareUpdatedLocations(loc, saveDraft)"
+              />-->
+              <GooglePlacesAutocomplete
+                :value="activeAsset.locationName"
+                @getAddressData="setPlace"
+                :placeholder="$t({ id: 'places.address_placeholder' })"
+                @placechanged="setPlace"
               />
             </template>
           </AppSwitchableEditor>
-
           <AppSwitchableEditor
             tag="div"
             class="flex-item--auto text-h5 text-weight-medium"
@@ -378,7 +384,8 @@ import PlacesAutocomplete from 'src/components/PlacesAutocomplete'
 import TransactionCard from 'src/components/TransactionCard'
 import ProfileCard from 'src/components/ProfileCard'
 import TransactionRatingsList from 'src/components/TransactionRatingsList'
-
+// import GoogleVuePlacesAutocomplete from 'src/components/GoogleVuePlacesAutocomplete'
+import GooglePlacesAutocomplete from 'src/components/GooglePlacesAutocomplete'
 import PageComponentMixin from 'src/mixins/pageComponent'
 import PaymentMixin from 'src/mixins/payment'
 import StripeMixin from 'src/mixins/stripe'
@@ -391,6 +398,8 @@ export default {
     TransactionCard,
     TransactionRatingsList,
     ProfileCard,
+    GooglePlacesAutocomplete,
+    // GoogleVuePlacesAutocomplete,
     VuePhotoSwipe: () => import(/* webpackChunkName: 'photoswipe' */ 'src/components/VuePhotoSwipe'),
   },
   mixins: [
@@ -687,7 +696,12 @@ export default {
       if (assetId === id) {
         this.$router.push({ name: 'newAsset' })
       }
-    }
+    },
+    setPlace (place) {
+      const arr = []
+      arr.push(place)
+      return this.updateAssetFn('locations')(arr)
+    },
   },
 }
 </script>

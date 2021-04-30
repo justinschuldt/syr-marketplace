@@ -12,6 +12,8 @@ import BasicHeroLayout from 'src/layouts/BasicHeroLayout'
 
 import CustomAttributesEditor from 'src/components/CustomAttributesEditor'
 import PlacesAutocomplete from 'src/components/PlacesAutocomplete'
+import GooglePlacesAutocomplete from 'src/components/GooglePlacesAutocomplete'
+// import GoogleVuePlacesAutocomplete from 'src/components/GoogleVuePlacesAutocomplete'
 import SelectAssetType from 'src/components/SelectAssetType'
 import SelectCategories from 'src/components/SelectCategories'
 
@@ -26,6 +28,8 @@ export default {
     PlacesAutocomplete,
     SelectAssetType,
     SelectCategories,
+    GooglePlacesAutocomplete,
+    // GoogleVuePlacesAutocomplete,
   },
   mixins: [
     PageComponentMixin,
@@ -206,7 +210,7 @@ export default {
     },
     afterAuth () {
       if (this.currentUser.id && this.currentUser.locations.length) {
-        this.locations = [this.currentUser.locations[0]]
+        // this.locations = [this.currentUser.locations[0]]
       }
     },
     changeCustomAttributes (customAttributes) {
@@ -393,6 +397,11 @@ export default {
     selectPlace (place) {
       this.locations = place ? [extractLocationDataFromPlace(place)] : []
     },
+    setPlace (place) {
+      const arr = []
+      arr.push(place)
+      this.locations = arr
+    },
   }
 }
 </script>
@@ -515,14 +524,27 @@ export default {
             />
 
             <div class="row justify-around">
-              <div v-if="isPlaceSearchEnabled" class="col-12 col-sm-5">
+              <!--<div v-if="isPlaceSearchEnabled" class="col-12 col-sm-5">
                 <PlacesAutocomplete
                   :label="$t({ id: 'places.address_placeholder' })"
                   :initial-query="locationName"
                   bottom-slots
                   @selectPlace="selectPlace"
                 />
+              </div> -->
+              <div v-if="isPlaceSearchEnabled" class="col-12 col-sm-5">
+                <GooglePlacesAutocomplete
+                  @getAddressData="setPlace"
+                  :placeholder="$t({ id: 'places.address_placeholder' })"
+                  :label="$t({ id: 'places.address_placeholder' })"
+                />
               </div>
+              <!--<div v-if="isPlaceSearchEnabled" class="col-12 col-sm-5">
+                  <QItem-label>{{ $t({ id: 'places.address_placeholder' }) }}</QItem-label>
+                  <GoogleVuePlacesAutocomplete
+                    @getAddressData="setPlace"
+              />
+              </div>-->
               <div
                 v-show="!selectedAssetType || !selectedAssetType.infiniteStock"
                 class="col-12 col-sm-5"
@@ -640,6 +662,9 @@ export default {
 </template>
 
 <style lang="stylus" scoped>
+.q-menu q-position-engine scroll q-popup-edit{
+  z-index:1
+}
 .row-input
   flex: 1 0
   min-width: 0
